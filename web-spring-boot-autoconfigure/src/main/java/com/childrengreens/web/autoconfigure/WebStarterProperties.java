@@ -30,14 +30,29 @@ import org.springframework.util.unit.DataSize;
 @ConfigurationProperties(prefix = "web.starter")
 public class WebStarterProperties {
 
+    /**
+     * Global Cross-Origin Resource Sharing configuration applied to Spring MVC.
+     */
     private final Cors cors = new Cors();
 
+    /**
+     * Trace identifier propagation settings controlling the trace filter.
+     */
     private final Trace trace = new Trace();
 
+    /**
+     * Access logging options for the request logging filter.
+     */
     private final Logging logging = new Logging();
 
+    /**
+     * Response wrapping behaviour for shared API responses.
+     */
     private final Response response = new Response();
 
+    /**
+     * Opinionated Jackson serialization settings.
+     */
     private final Jackson jackson = new Jackson();
 
     public Cors getCors() {
@@ -60,22 +75,49 @@ public class WebStarterProperties {
         return this.jackson;
     }
 
+    /**
+     * Configuration applied to CORS mappings registered by the starter.
+     */
     public static class Cors {
 
+        /**
+         * Whether the starter should register CORS mappings.
+         */
         private boolean enabled = true;
 
+        /**
+         * Ant-style path pattern the CORS rule applies to.
+         */
         private String pathPattern = "/**";
 
+        /**
+         * Allowed origins for cross-origin requests.
+         */
         private List<String> allowedOrigins = new ArrayList<>(Collections.singletonList("*"));
 
+        /**
+         * Allowed headers that clients can use during the actual request.
+         */
         private List<String> allowedHeaders = new ArrayList<>(Collections.singletonList("*"));
 
+        /**
+         * HTTP methods permitted for cross-origin requests.
+         */
         private List<String> allowedMethods = new ArrayList<>(Collections.singletonList("*"));
 
+        /**
+         * Response headers exposed to the browser.
+         */
         private List<String> exposedHeaders = new ArrayList<>();
 
+        /**
+         * Whether user credentials are supported for cross-origin requests.
+         */
         private boolean allowCredentials;
 
+        /**
+         * Cache duration for pre-flight responses in seconds.
+         */
         private long maxAge = 3600;
 
         public boolean isEnabled() {
@@ -143,10 +185,19 @@ public class WebStarterProperties {
         }
     }
 
+    /**
+     * Settings for the trace id generation and propagation filter.
+     */
     public static class Trace {
 
+        /**
+         * Whether the trace filter should be registered.
+         */
         private boolean enabled = true;
 
+        /**
+         * HTTP header name read from and written to the request/response.
+         */
         private String headerName = "X-Trace-Id";
 
         public boolean isEnabled() {
@@ -166,12 +217,24 @@ public class WebStarterProperties {
         }
     }
 
+    /**
+     * Options for the request logging filter.
+     */
     public static class Logging {
 
+        /**
+         * Whether the logging filter should be active.
+         */
         private boolean enabled = true;
 
+        /**
+         * Whether request headers should be included in the log message.
+         */
         private boolean includeHeaders;
 
+        /**
+         * Maximum number of bytes from request/response bodies logged per request.
+         */
         private DataSize maxPayloadSize = DataSize.ofKilobytes(8);
 
         public boolean isEnabled() {
@@ -199,18 +262,39 @@ public class WebStarterProperties {
         }
     }
 
+    /**
+     * Response wrapping configuration controlling the shared API model.
+     */
     public static class Response {
 
+        /**
+         * Whether the {@code ResponseBodyAdvice} wrapper is enabled.
+         */
         private boolean enabled = true;
 
+        /**
+         * Whether null controller responses should be wrapped as successful results.
+         */
         private boolean wrapOnNullBody = true;
 
+        /**
+         * Default code used for successful responses.
+         */
         private String successCode = "0";
 
+        /**
+         * Default message used for successful responses.
+         */
         private String successMessage = "Success";
 
+        /**
+         * Fallback code used for unexpected errors.
+         */
         private String defaultErrorCode = "1999";
 
+        /**
+         * Fallback message used for unexpected errors.
+         */
         private String defaultErrorMessage = "Internal server error";
 
         public boolean isEnabled() {
@@ -262,14 +346,29 @@ public class WebStarterProperties {
         }
     }
 
+    /**
+     * Jackson serialization customisations applied by the starter.
+     */
     public static class Jackson {
 
+        /**
+         * Whether dates should be written as numeric timestamps.
+         */
         private boolean writeDatesAsTimestamps;
 
+        /**
+         * Date format applied to {@code java.util.Date}-based types.
+         */
         private String dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
 
+        /**
+         * Time zone applied when formatting dates.
+         */
         private ZoneId zoneId = ZoneId.of("UTC");
 
+        /**
+         * Whether {@code long} values should be serialised as strings to avoid precision loss.
+         */
         private boolean writeLongAsString;
 
         public boolean isWriteDatesAsTimestamps() {
