@@ -41,7 +41,8 @@ Add the starter to your Spring Boot application:
 
 == Configuration Hints
 
-The starter provides rich metadata so IDEs offer auto-completion for all `web.starter.*` properties. Common tweaks:
+The starter provides rich metadata so IDEs offer auto-completion for all `web.starter.*` properties. A full reference is
+available in link:docs/web-starter-properties.adoc[Web Starter Properties Guide]. Common tweaks:
 
 [source,properties]
 ----
