@@ -1,0 +1,52 @@
+{
+  "properties": [
+    {
+      "name": "web.starter.cors.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Whether the starter should register a permissive CORS configuration.",
+      "defaultValue": true
+    },
+    {
+      "name": "web.starter.cors.path-pattern",
+      "type": "java.lang.String",
+      "description": "Path pattern the CORS rule applies to.",
+      "defaultValue": "/**"
+    },
+    {
+      "name": "web.starter.trace.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enable trace id filter and propagation.",
+      "defaultValue": true
+    },
+    {
+      "name": "web.starter.trace.header-name",
+      "type": "java.lang.String",
+      "description": "HTTP header used to propagate the trace id.",
+      "defaultValue": "X-Trace-Id"
+    },
+    {
+      "name": "web.starter.logging.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enable access logging filter.",
+      "defaultValue": true
+    },
+    {
+      "name": "web.starter.response.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enable global response wrapping.",
+      "defaultValue": true
+    },
+    {
+      "name": "web.starter.response.wrap-on-null-body",
+      "type": "java.lang.Boolean",
+      "description": "Wrap successful responses even when the controller returns null.",
+      "defaultValue": true
+    },
+    {
+      "name": "web.starter.jackson.date-format",
+      "type": "java.lang.String",
+      "description": "Date format applied to java.util.Date based types.",
+      "defaultValue": "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"
+    }
+  ]
+}

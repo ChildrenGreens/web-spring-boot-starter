@@ -12,6 +12,28 @@
 
     <artifactId>web-spring-boot-starter</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <name>web-spring-boot-starter</name>
+    <description>Starter that bundles the opinionated auto-configuration</description>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.childrengreens</groupId>
+            <artifactId>web-spring-boot-autoconfigure</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
 
 </project>
