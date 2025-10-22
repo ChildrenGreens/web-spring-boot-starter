@@ -4,27 +4,31 @@ ChildrenGreens <childrengreens@163.com>
 :toclevels: 2
 :icons: font
 
+The `web-spring-boot-starter` project delivers an opinionated web layer for Spring Boot 3.5.x applications. It groups reusable
+context components, auto-configuration, and a consumable starter so teams can enable unified API behaviour with one dependency.
+
 toc::[]
-
-== Overview
-
-A multi-module Spring Boot starter for web applications. It provides out-of-the-box auto-configuration to speed up web development. The modules are organized as Context, AutoConfigure, and Starter.
 
 == Modules
 
-- web-spring-boot-context
-- web-spring-boot-autoconfigure
-- web-spring-boot-starter
+- *web-spring-boot-context* — shared building blocks such as the `ApiResponse` model (now carrying `traceId`), global exception
+  handling, trace propagation helpers, and request logging filters.
+- *web-spring-boot-autoconfigure* — conditional beans, configuration properties, and metadata that wire the context components
+  into a servlet web application.
+- *web-spring-boot-starter* — starter POM that exposes the auto-configuration alongside Spring Web dependencies for consumers.
 
-== Requirements
+== Features
 
-- JDK 21+
-- Spring Boot 3.5.x
-- Maven 3.9+
+- Consistent JSON envelope through `ApiResponse<T>` exposing `code`, `message`, `data`, and the active `traceId`.
+- `GlobalExceptionHandler` returning structured errors for validation, business, and generic failures.
+- Optional response wrapping via `ResponseBodyAdvice`, toggled with `web.starter.response.enabled`.
+- Trace propagation filter that reads or generates `X-Trace-Id`, stores it in MDC, and surfaces it in every response body.
+- Request logging filter with configurable header dumps and payload truncation.
+- Sensible Jackson defaults (ISO-8601 dates, optional long-to-string serialisation) and configurable CORS policy.
 
 == Quick Start
 
-Add the starter dependency to your application:
+Add the starter to your Spring Boot application:
 
 [source,xml]
 ----
@@ -35,38 +39,44 @@ Add the starter dependency to your application:
 </dependency>
 ----
 
-If you use a snapshot version, enable the Sonatype Snapshots repository:
+== Configuration Hints
 
-[source,xml]
+The starter provides rich metadata so IDEs offer auto-completion for all `web.starter.*` properties. Common tweaks:
+
+[source,properties]
 ----
-<repositories>
-  <repository>
-    <id>ossrh-snapshots</id>
-    <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
-    <releases>
-      <enabled>false</enabled>
-    </releases>
-    <snapshots>
-      <enabled>true</enabled>
-    </snapshots>
-  </repository>
-</repositories>
+web.starter.trace.enabled=true
+web.starter.trace.header-name=X-Trace-Id
+web.starter.response.enabled=true
+web.starter.response.wrap-on-null-body=false
+web.starter.logging.include-headers=true
+web.starter.logging.max-payload-size=16KB
+web.starter.jackson.write-long-as-string=true
+web.starter.cors.allowed-origins=https://example.com
 ----
 
-== Build and Install Locally
+== Requirements
 
-From the repository root:
+- JDK 21+
+- Maven 3.9+
+- Spring Boot 3.5.x
+
+== Build & Test
 
 [source,shell]
 ----
-mvn -T 1C -DskipTests=true clean install
+# Format license headers, compile all modules, and run tests
+mvn clean install
+
+# Focus on auto-configuration tests only
+mvn -pl web-spring-boot-autoconfigure test
 ----
 
-== Project
+== Project Links
 
 - Home: https://github.com/ChildrenGreens/web-spring-boot-starter
 - Issues: https://github.com/ChildrenGreens/web-spring-boot-starter/issues
 
 == License
 
-Apache License 2.0. See LICENSE.txt in the project root for details.
+Apache License 2.0. See `LICENSE.txt` in the project root.

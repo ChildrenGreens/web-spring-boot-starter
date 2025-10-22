@@ -26,14 +26,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
-import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class WebAutoConfigurationTests {
 
-    private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
+    private final WebApplicationContextRunner contextRunner = new WebApplicationContextRunner()
             .withConfiguration(AutoConfigurations.of(WebAutoConfiguration.class));
 
     @Test
@@ -42,7 +42,9 @@ class WebAutoConfigurationTests {
             assertThat(context).hasSingleBean(ApiResponseFactory.class);
             assertThat(context).hasSingleBean(GlobalExceptionHandler.class);
             assertThat(context).hasSingleBean(ResponseWrappingAdvice.class);
-            assertThat(context).hasSingleBean(TraceIdFilter.class);
+            assertThat(context.getBeansOfType(FilterRegistrationBean.class).values()).anySatisfy((bean) -> {
+                assertThat(bean.getFilter()).isInstanceOf(TraceIdFilter.class);
+            });
         });
     }
 
@@ -68,7 +70,8 @@ class WebAutoConfigurationTests {
     @Test
     void shouldDisableTraceFilterWhenConfigured() {
         this.contextRunner.withPropertyValues("web.starter.trace.enabled=false").run((context) -> {
-            assertThat(context).doesNotHaveBean(TraceIdFilter.class);
+            assertThat(context.getBeansOfType(FilterRegistrationBean.class).values()).noneMatch((bean) ->
+                    bean.getFilter() instanceof TraceIdFilter);
         });
     }
 

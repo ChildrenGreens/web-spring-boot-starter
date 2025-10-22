@@ -18,8 +18,9 @@ package com.childrengreens.web.context.response;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.Instant;
 import java.util.Objects;
+
+import com.childrengreens.web.context.trace.TraceIdHolder;
 
 import com.childrengreens.web.context.exception.DefaultErrorCode;
 import com.childrengreens.web.context.exception.ErrorCode;
@@ -42,13 +43,13 @@ public final class ApiResponse<T> implements Serializable {
 
     private final T data;
 
-    private final Instant timestamp;
+    private final String traceId;
 
-    private ApiResponse(String code, String message, T data, Instant timestamp) {
+    private ApiResponse(String code, String message, T data, String traceId) {
         this.code = Objects.requireNonNull(code, "code");
         this.message = Objects.requireNonNull(message, "message");
         this.data = data;
-        this.timestamp = Objects.requireNonNull(timestamp, "timestamp");
+        this.traceId = traceId;
     }
 
     public String getCode() {
@@ -63,8 +64,8 @@ public final class ApiResponse<T> implements Serializable {
         return this.data;
     }
 
-    public Instant getTimestamp() {
-        return this.timestamp;
+    public String getTraceId() {
+        return this.traceId;
     }
 
     public static <T> ApiResponse<T> success(T data) {
@@ -92,6 +93,10 @@ public final class ApiResponse<T> implements Serializable {
     }
 
     public static <T> ApiResponse<T> of(String code, String message, T data) {
-        return new ApiResponse<>(code, message, data, Instant.now());
+        return new ApiResponse<>(code, message, data, resolveTraceId());
+    }
+
+    private static String resolveTraceId() {
+        return TraceIdHolder.get();
     }
 }
