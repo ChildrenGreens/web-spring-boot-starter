@@ -16,11 +16,16 @@
 
 package com.childrengreens.web.autoconfigure;
 
+import java.util.Locale;
+
 import com.childrengreens.web.context.advice.ResponseWrappingAdvice;
 import com.childrengreens.web.context.exception.GlobalExceptionHandler;
 import com.childrengreens.web.context.response.ApiResponseFactory;
 import com.childrengreens.web.context.trace.TraceIdFilter;
 import com.childrengreens.web.context.logging.RequestLoggingFilter;
+import com.childrengreens.web.context.auth.LoginRequirementEvaluator;
+import com.childrengreens.web.context.auth.LoginRequiredInterceptor;
+import com.childrengreens.web.context.i18n.MessageResolver;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -80,6 +85,24 @@ class WebAutoConfigurationTests {
         this.contextRunner.withPropertyValues("web.starter.logging.enabled=false").run((context) -> {
             assertThat(context.getBeansOfType(FilterRegistrationBean.class).values()).noneMatch((registration) ->
                     registration.getFilter() instanceof RequestLoggingFilter);
+        });
+    }
+
+    @Test
+    void shouldRegisterLoginInterceptorWhenEvaluatorPresent() {
+        this.contextRunner.withPropertyValues("web.starter.auth.enabled=true")
+                .withBean(LoginRequirementEvaluator.class, () -> (request, handler, scope) -> { })
+                .run((context) -> {
+                    assertThat(context).hasSingleBean(LoginRequiredInterceptor.class);
+                });
+    }
+
+    @Test
+    void shouldProvideMessageResolverForLocales() {
+        this.contextRunner.withPropertyValues("web.starter.i18n.base-names=classpath:i18n/messages").run((context) -> {
+            MessageResolver resolver = context.getBean(MessageResolver.class);
+            assertThat(resolver.getMessageForLocale("welcome.message", Locale.CHINA)).isEqualTo("你好");
+            assertThat(resolver.getMessage("welcome.message")).isEqualTo("Hello");
         });
     }
 }

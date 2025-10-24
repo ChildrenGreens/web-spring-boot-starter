@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 
 import com.childrengreens.web.context.response.ApiResponse;
 import com.childrengreens.web.context.response.ApiResponseFactory;
+import com.childrengreens.web.context.exception.UnauthorizedException;
 import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,6 +121,13 @@ public class GlobalExceptionHandler {
         log.debug("No handler found", exception);
         var response = ApiResponse.failure(DefaultErrorCode.RESOURCE_NOT_FOUND, exception.getRequestURL());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleUnauthorized(UnauthorizedException exception) {
+        String message = exception.getMessage() != null ? exception.getMessage() : DefaultErrorCode.UNAUTHORIZED.getMessage();
+        var response = ApiResponse.failure(DefaultErrorCode.UNAUTHORIZED, message);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
     @ExceptionHandler(Exception.class)

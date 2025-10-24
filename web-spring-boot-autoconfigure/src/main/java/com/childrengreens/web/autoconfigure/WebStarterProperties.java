@@ -16,10 +16,13 @@
 
 package com.childrengreens.web.autoconfigure;
 
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.util.unit.DataSize;
@@ -55,6 +58,16 @@ public class WebStarterProperties {
      */
     private final Jackson jackson = new Jackson();
 
+    /**
+     * Authentication guard configuration used with @LoginRequired.
+     */
+    private final Auth auth = new Auth();
+
+    /**
+     * Internationalisation options for message resolution.
+     */
+    private final I18n i18n = new I18n();
+
     public Cors getCors() {
         return this.cors;
     }
@@ -73,6 +86,14 @@ public class WebStarterProperties {
 
     public Jackson getJackson() {
         return this.jackson;
+    }
+
+    public Auth getAuth() {
+        return this.auth;
+    }
+
+    public I18n getI18n() {
+        return this.i18n;
     }
 
     /**
@@ -343,6 +364,108 @@ public class WebStarterProperties {
 
         public void setDefaultErrorMessage(String defaultErrorMessage) {
             this.defaultErrorMessage = defaultErrorMessage;
+        }
+    }
+
+    /**
+     * Authentication guard configuration used with {@link com.childrengreens.web.context.auth.LoginRequired}.
+     */
+    public static class Auth {
+
+        private boolean enabled;
+
+        private List<String> includePatterns = new ArrayList<>(Collections.singletonList("/**"));
+
+        private List<String> excludePatterns = new ArrayList<>();
+
+        public boolean isEnabled() {
+            return this.enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public List<String> getIncludePatterns() {
+            return this.includePatterns;
+        }
+
+        public void setIncludePatterns(List<String> includePatterns) {
+            this.includePatterns = includePatterns;
+        }
+
+        public List<String> getExcludePatterns() {
+            return this.excludePatterns;
+        }
+
+        public void setExcludePatterns(List<String> excludePatterns) {
+            this.excludePatterns = excludePatterns;
+        }
+    }
+
+    /**
+     * Internationalisation options for message resolution.
+     */
+    public static class I18n {
+
+        private boolean enabled = true;
+
+        private List<String> baseNames = new ArrayList<>(Collections.singletonList("classpath:i18n/messages"));
+
+        private String encoding = StandardCharsets.UTF_8.name();
+
+        private Duration cacheDuration = Duration.ofMinutes(5);
+
+        private Locale defaultLocale = Locale.getDefault();
+
+        private boolean useCodeAsDefaultMessage = true;
+
+        public boolean isEnabled() {
+            return this.enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public List<String> getBaseNames() {
+            return this.baseNames;
+        }
+
+        public void setBaseNames(List<String> baseNames) {
+            this.baseNames = baseNames;
+        }
+
+        public String getEncoding() {
+            return this.encoding;
+        }
+
+        public void setEncoding(String encoding) {
+            this.encoding = encoding;
+        }
+
+        public Duration getCacheDuration() {
+            return this.cacheDuration;
+        }
+
+        public void setCacheDuration(Duration cacheDuration) {
+            this.cacheDuration = cacheDuration;
+        }
+
+        public Locale getDefaultLocale() {
+            return this.defaultLocale;
+        }
+
+        public void setDefaultLocale(Locale defaultLocale) {
+            this.defaultLocale = defaultLocale;
+        }
+
+        public boolean isUseCodeAsDefaultMessage() {
+            return this.useCodeAsDefaultMessage;
+        }
+
+        public void setUseCodeAsDefaultMessage(boolean useCodeAsDefaultMessage) {
+            this.useCodeAsDefaultMessage = useCodeAsDefaultMessage;
         }
     }
 

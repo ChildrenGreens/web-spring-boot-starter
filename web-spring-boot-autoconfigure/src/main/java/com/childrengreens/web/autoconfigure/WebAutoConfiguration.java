@@ -16,10 +16,12 @@
 
 package com.childrengreens.web.autoconfigure;
 
-import java.util.TimeZone;
-
 import com.childrengreens.web.context.advice.ResponseWrappingAdvice;
+import com.childrengreens.web.context.auth.LoginRequiredInterceptor;
+import com.childrengreens.web.context.auth.LoginRequirementEvaluator;
 import com.childrengreens.web.context.exception.GlobalExceptionHandler;
+import com.childrengreens.web.context.i18n.MessageResolver;
+import com.childrengreens.web.context.i18n.MessageResolverImpl;
 import com.childrengreens.web.context.logging.RequestLoggingFilter;
 import com.childrengreens.web.context.response.ApiResponseFactory;
 import com.childrengreens.web.context.trace.TraceIdFilter;
@@ -27,18 +29,22 @@ import com.childrengreens.web.context.trace.TraceIdGenerator;
 import com.childrengreens.web.context.trace.UuidsTraceIdGenerator;
 import jakarta.servlet.DispatcherType;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.boot.autoconfigure.condition.*;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.Ordered;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
+
+import java.util.TimeZone;
 
 /**
  * Auto-configuration that exposes the web starter opinionated defaults.
@@ -71,8 +77,8 @@ public class WebAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean
-    public WebMvcConfigurer webStarterWebMvcConfigurer(WebStarterProperties properties) {
+    @ConditionalOnProperty(prefix = "web.starter.cors", name = "enabled", havingValue = "true", matchIfMissing = true)
+    public WebMvcConfigurer webStarterCorsConfigurer(WebStarterProperties properties) {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
@@ -109,6 +115,64 @@ public class WebAutoConfiguration {
         registration.setDispatcherTypes(DispatcherType.REQUEST, DispatcherType.ASYNC);
         registration.setOrder(Ordered.HIGHEST_PRECEDENCE + 10);
         return registration;
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "web.starter.i18n", name = "enabled", havingValue = "true", matchIfMissing = true)
+    @ConditionalOnMissingBean(MessageSource.class)
+    public MessageSource webStarterMessageSource(WebStarterProperties properties) {
+        WebStarterProperties.I18n i18n = properties.getI18n();
+        ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
+        messageSource.setBasenames(i18n.getBaseNames().toArray(new String[0]));
+        messageSource.setDefaultEncoding(i18n.getEncoding());
+        messageSource.setCacheMillis(i18n.getCacheDuration().toMillis());
+        messageSource.setDefaultLocale(i18n.getDefaultLocale());
+        messageSource.setUseCodeAsDefaultMessage(i18n.isUseCodeAsDefaultMessage());
+        return messageSource;
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "web.starter.i18n", name = "enabled", havingValue = "true", matchIfMissing = true)
+    @ConditionalOnMissingBean(LocaleResolver.class)
+    public LocaleResolver webStarterLocaleResolver(WebStarterProperties properties) {
+        AcceptHeaderLocaleResolver resolver = new AcceptHeaderLocaleResolver();
+        resolver.setDefaultLocale(properties.getI18n().getDefaultLocale());
+        return resolver;
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "web.starter.i18n", name = "enabled", havingValue = "true", matchIfMissing = true)
+    @ConditionalOnBean(MessageSource.class)
+    @ConditionalOnMissingBean(MessageResolver.class)
+    public MessageResolver messageResolver(MessageSource messageSource) {
+        return new MessageResolverImpl(messageSource);
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "web.starter.auth", name = "enabled", havingValue = "true")
+    @ConditionalOnBean(LoginRequirementEvaluator.class)
+    public LoginRequiredInterceptor loginRequiredInterceptor(LoginRequirementEvaluator evaluator) {
+        return new LoginRequiredInterceptor(evaluator);
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "web.starter.auth", name = "enabled", havingValue = "true")
+    @ConditionalOnBean(LoginRequiredInterceptor.class)
+    public WebMvcConfigurer loginRequiredConfigurer(WebStarterProperties properties,
+            LoginRequiredInterceptor interceptor) {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addInterceptors(InterceptorRegistry registry) {
+                WebStarterProperties.Auth auth = properties.getAuth();
+                var registration = registry.addInterceptor(interceptor);
+                if (!auth.getIncludePatterns().isEmpty()) {
+                    registration.addPathPatterns(auth.getIncludePatterns().toArray(new String[0]));
+                }
+                if (!auth.getExcludePatterns().isEmpty()) {
+                    registration.excludePathPatterns(auth.getExcludePatterns().toArray(new String[0]));
+                }
+            }
+        };
     }
 
     @Bean

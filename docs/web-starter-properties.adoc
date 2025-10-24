@@ -82,7 +82,56 @@ only need to set values that differ from your organisation’s conventions.
 |Maximum number of bytes captured from request and response bodies. Payloads larger than the limit are truncated with an ellipsis.
 |===
 
+== Auth (`web.starter.auth`)
+
+|===
+|Property |Default |Description
+
+|`web.starter.auth.enabled`
+|`false`
+|Turns on the `@LoginRequired` interceptor. Requires a `LoginRequirementEvaluator` bean to perform auth checks.
+
+|`web.starter.auth.include-patterns`
+|`/**`
+|Path patterns guarded by the interceptor. Patterns follow the same rules as Spring MVC `HandlerInterceptor`.
+
+|`web.starter.auth.exclude-patterns`
+|``
+|Paths that bypass authentication even when included above (for example health probes).
+|===
+
+== I18n (`web.starter.i18n`)
+
+|===
+|Property |Default |Description
+
+|`web.starter.i18n.enabled`
+|`true`
+|Enables the message source and `Accept-Language`-aware locale resolver.
+
+|`web.starter.i18n.base-names`
+|`classpath:i18n/messages`
+|Comma-separated list or YAML array pointing to message bundles.
+
+|`web.starter.i18n.encoding`
+|`UTF-8`
+|Encoding used when reading message files.
+
+|`web.starter.i18n.cache-duration`
+|`PT5M`
+|Duration that message bundles stay in memory before being reloaded.
+
+|`web.starter.i18n.default-locale`
+|System default
+|Locale applied when the request does not declare `Accept-Language`.
+
+|`web.starter.i18n.use-code-as-default-message`
+|`true`
+|When `true`, unresolved codes are returned as-is instead of throwing an exception.
+|===
+
 == Response (`web.starter.response`)
+
 
 |===
 |Property |Default |Description

@@ -24,7 +24,9 @@ toc::[]
 - Optional response wrapping via `ResponseBodyAdvice`, toggled with `web.starter.response.enabled`.
 - Trace propagation filter that reads or generates `X-Trace-Id`, stores it in MDC, and surfaces it in every response body.
 - Request logging filter with configurable header dumps and payload truncation.
+- Internationalised message lookup based on `Accept-Language`, plus a `MessageResolver` helper.
 - Sensible Jackson defaults (ISO-8601 dates, optional long-to-string serialisation) and configurable CORS policy.
+- Optional `@LoginRequired` annotation with a pluggable `LoginRequirementEvaluator` to integrate project-specific authentication.
 
 == Quick Start
 

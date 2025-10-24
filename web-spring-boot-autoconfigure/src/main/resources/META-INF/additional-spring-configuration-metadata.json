@@ -1,6 +1,26 @@
 {
   "properties": [
     {
+      "name": "web.starter.auth.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enable @LoginRequired interceptor support.",
+      "defaultValue": false
+    },
+    {
+      "name": "web.starter.auth.exclude-patterns",
+      "type": "java.util.List<java.lang.String>",
+      "description": "Path patterns excluded from authentication checks.",
+      "defaultValue": []
+    },
+    {
+      "name": "web.starter.auth.include-patterns",
+      "type": "java.util.List<java.lang.String>",
+      "description": "Path patterns that require authentication checks.",
+      "defaultValue": [
+        "/**"
+      ]
+    },
+    {
       "name": "web.starter.cors.enabled",
       "type": "java.lang.Boolean",
       "description": "Whether the starter should register a permissive CORS configuration.",
@@ -13,6 +33,101 @@
       "defaultValue": "/**"
     },
     {
+      "name": "web.starter.i18n.base-names",
+      "type": "java.util.List<java.lang.String>",
+      "description": "Message source base names resolved from the classpath.",
+      "defaultValue": "[\"classpath:i18n/messages\"]"
+    },
+    {
+      "name": "web.starter.i18n.cache-duration",
+      "type": "java.time.Duration",
+      "description": "Duration that message bundles should be cached.",
+      "defaultValue": "PT5M"
+    },
+    {
+      "name": "web.starter.i18n.default-locale",
+      "type": "java.util.Locale",
+      "description": "Default locale used when none is supplied by the client."
+    },
+    {
+      "name": "web.starter.i18n.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enable internationalised message resolution.",
+      "defaultValue": true
+    },
+    {
+      "name": "web.starter.i18n.encoding",
+      "type": "java.lang.String",
+      "description": "Encoding used when reading message bundles.",
+      "defaultValue": "UTF-8"
+    },
+    {
+      "name": "web.starter.i18n.use-code-as-default-message",
+      "type": "java.lang.Boolean",
+      "description": "Use message codes as default when no translation is found.",
+      "defaultValue": true
+    },
+    {
+      "name": "web.starter.jackson.date-format",
+      "type": "java.lang.String",
+      "description": "Date format applied to java.util.Date based types.",
+      "defaultValue": "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"
+    },
+    {
+      "name": "web.starter.logging.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enable access logging filter.",
+      "defaultValue": true
+    },
+    {
+      "name": "web.starter.logging.include-headers",
+      "type": "java.lang.Boolean",
+      "description": "Include request headers in access logs.",
+      "defaultValue": false
+    },
+    {
+      "name": "web.starter.logging.max-payload-size",
+      "type": "org.springframework.util.unit.DataSize",
+      "description": "Maximum payload size captured in access logs.",
+      "defaultValue": "8KB"
+    },
+    {
+      "name": "web.starter.response.default-error-code",
+      "type": "java.lang.String",
+      "description": "Fallback error code when no specific mapping is present.",
+      "defaultValue": "1999"
+    },
+    {
+      "name": "web.starter.response.default-error-message",
+      "type": "java.lang.String",
+      "description": "Fallback error message when no specific mapping is present.",
+      "defaultValue": "Internal server error"
+    },
+    {
+      "name": "web.starter.response.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enable global response wrapping.",
+      "defaultValue": true
+    },
+    {
+      "name": "web.starter.response.success-code",
+      "type": "java.lang.String",
+      "description": "Default success code used in ApiResponse bodies.",
+      "defaultValue": "0"
+    },
+    {
+      "name": "web.starter.response.success-message",
+      "type": "java.lang.String",
+      "description": "Default success message used in ApiResponse bodies.",
+      "defaultValue": "Success"
+    },
+    {
+      "name": "web.starter.response.wrap-on-null-body",
+      "type": "java.lang.Boolean",
+      "description": "Wrap successful responses even when the controller returns null.",
+      "defaultValue": true
+    },
+    {
       "name": "web.starter.trace.enabled",
       "type": "java.lang.Boolean",
       "description": "Enable trace id filter and propagation.",
@@ -23,30 +138,6 @@
       "type": "java.lang.String",
       "description": "HTTP header used to propagate the trace id.",
       "defaultValue": "X-Trace-Id"
-    },
-    {
-      "name": "web.starter.logging.enabled",
-      "type": "java.lang.Boolean",
-      "description": "Enable access logging filter.",
-      "defaultValue": true
-    },
-    {
-      "name": "web.starter.response.enabled",
-      "type": "java.lang.Boolean",
-      "description": "Enable global response wrapping.",
-      "defaultValue": true
-    },
-    {
-      "name": "web.starter.response.wrap-on-null-body",
-      "type": "java.lang.Boolean",
-      "description": "Wrap successful responses even when the controller returns null.",
-      "defaultValue": true
-    },
-    {
-      "name": "web.starter.jackson.date-format",
-      "type": "java.lang.String",
-      "description": "Date format applied to java.util.Date based types.",
-      "defaultValue": "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"
     }
   ]
 }

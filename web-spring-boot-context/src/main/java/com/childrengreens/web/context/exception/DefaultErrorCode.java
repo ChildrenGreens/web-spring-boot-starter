@@ -27,6 +27,8 @@ public enum DefaultErrorCode implements ErrorCode {
 
     BUSINESS_ERROR("1001", "Business rule violated"),
 
+    UNAUTHORIZED("1002", "Unauthorized"),
+
     RESOURCE_NOT_FOUND("1004", "Resource not found"),
 
     INTERNAL_ERROR("1999", "Internal server error");
