@@ -32,6 +32,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -100,10 +101,16 @@ class WebAutoConfigurationTests {
     @Test
     void shouldProvideMessageResolverForLocales() {
         this.contextRunner.withPropertyValues("web.starter.i18n.base-names=classpath:i18n/messages").run((context) -> {
-            MessageResolver resolver = context.getBean(MessageResolver.class);
-            assertThat(resolver.getMessageForLocale("welcome.message", Locale.CHINA)).isEqualTo("你好");
-            assertThat(resolver.getMessage("welcome.message")).isEqualTo("Hello");
+            Locale previous = LocaleContextHolder.getLocale();
+            LocaleContextHolder.setLocale(Locale.US);
+            try {
+                MessageResolver resolver = context.getBean(MessageResolver.class);
+                assertThat(resolver.getMessageForLocale("welcome.message", Locale.CHINA)).isEqualTo("你好");
+                assertThat(resolver.getMessage("welcome.message")).isEqualTo("Hello");
+            }
+            finally {
+                LocaleContextHolder.setLocale(previous);
+            }
         });
     }
 }
-
