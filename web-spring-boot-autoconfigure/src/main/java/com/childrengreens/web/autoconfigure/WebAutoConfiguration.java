@@ -35,6 +35,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.Ordered;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
@@ -117,9 +118,9 @@ public class WebAutoConfiguration {
         return registration;
     }
 
-    @Bean
+    @Bean(name = AbstractApplicationContext.MESSAGE_SOURCE_BEAN_NAME)
     @ConditionalOnProperty(prefix = "web.starter.i18n", name = "enabled", havingValue = "true", matchIfMissing = true)
-    @ConditionalOnMissingBean(MessageSource.class)
+    @ConditionalOnMissingBean(name = AbstractApplicationContext.MESSAGE_SOURCE_BEAN_NAME)
     public MessageSource webStarterMessageSource(WebStarterProperties properties) {
         WebStarterProperties.I18n i18n = properties.getI18n();
         ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
