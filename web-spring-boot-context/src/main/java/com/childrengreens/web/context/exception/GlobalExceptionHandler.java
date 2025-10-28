@@ -15,12 +15,8 @@
  */
 package com.childrengreens.web.context.exception;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import com.childrengreens.web.context.response.ApiResponse;
 import com.childrengreens.web.context.response.ApiResponseFactory;
-import com.childrengreens.web.context.exception.UnauthorizedException;
 import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,11 +24,13 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -40,8 +38,8 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.web.bind.MethodArgumentNotValidException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Default implementation of a global exception handler that produces a unified
@@ -95,7 +93,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleMessageNotReadable(HttpMessageNotReadableException exception) {
         log.debug("Unable to read HTTP message", exception);
         Throwable mostSpecificCause = exception.getMostSpecificCause();
-        String message = mostSpecificCause != null ? mostSpecificCause.getMessage() : exception.getMessage();
+        String message = mostSpecificCause.getMessage();
         var response = ApiResponse.failure(DefaultErrorCode.VALIDATION_ERROR, message != null ? message
                 : DefaultErrorCode.VALIDATION_ERROR.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
