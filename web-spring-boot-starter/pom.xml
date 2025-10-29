@@ -7,11 +7,10 @@
     <parent>
         <groupId>com.childrengreens</groupId>
         <artifactId>web-spring-boot</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>web-spring-boot-starter</artifactId>
-    <version>1.0-SNAPSHOT</version>
     <name>web-spring-boot-starter</name>
     <description>Starter that bundles the opinionated auto-configuration</description>
 
@@ -19,7 +18,6 @@
         <dependency>
             <groupId>com.childrengreens</groupId>
             <artifactId>web-spring-boot-autoconfigure</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
