@@ -37,7 +37,7 @@ Add the starter to your Spring Boot application:
 <dependency>
   <groupId>com.childrengreens</groupId>
   <artifactId>web-spring-boot-starter</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>0.0.1</version>
 </dependency>
 ----
 
@@ -163,6 +163,21 @@ mvn -pl web-spring-boot-autoconfigure test
 # Faster local iteration while developing
 mvn -T 1C clean install -DskipTests=true
 ----
+
+== Versioning & Release
+
+- The root `pom.xml` keeps the project version in the `revision` property. Bump releases with
+  `mvn versions:set -DnewVersion=x.y.z` (run in the project root) so every module stays aligned.
+- During local builds the canonical POM still contains `${revision}`; `flatten-maven-plugin`
+  (wired in the default lifecycle) resolves it to a literal version before artifacts are installed or deployed.
+- To publish to Maven Central, ensure your `~/.m2/settings.xml` defines credentials for the `ossrh` server, then run:
+
+[source,shell]
+----
+mvn -Prelease deploy
+----
+
+  The `release` profile signs artifacts and attaches sources/javadoc jars as required by Central.
 
 == Project Links
 

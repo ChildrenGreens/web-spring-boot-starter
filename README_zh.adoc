@@ -34,7 +34,7 @@ toc::[]
 <dependency>
   <groupId>com.childrengreens</groupId>
   <artifactId>web-spring-boot-starter</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>0.0.1</version>
 </dependency>
 ----
 
@@ -158,6 +158,21 @@ mvn -pl web-spring-boot-autoconfigure test
 # 开发迭代时的快速构建
 mvn -T 1C clean install -DskipTests=true
 ----
+
+== 版本管理与发布
+
+- 项目的实际版本号集中在根目录 `pom.xml` 的 `revision` 属性中，可在仓库根执行
+  `mvn versions:set -DnewVersion=x.y.z` 统一调整。
+- 默认构建阶段 POM 仍保留 `${revision}` 占位符，`flatten-maven-plugin` 会在安装/发布前生成扁平化 POM，
+  确保发布到外部仓库时写入真实版本号。
+- 如需发布到 Maven Central，请先在 `~/.m2/settings.xml` 为 `ossrh` 服务器配置凭据，然后执行：
+
+[source,shell]
+----
+mvn -Prelease deploy
+----
+
+  `release` Profile 会自动签名并附带源码、Javadoc JAR，满足 Central 验证要求。
 
 == 项目链接
 
