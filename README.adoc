@@ -45,6 +45,50 @@ With the starter on the classpath your existing controllers can continue returni
 `ResponseWrappingAdvice` supplied by the context module will automatically wrap non `ApiResponse` payloads when
 `web.starter.response.enabled=true`, attach the current `traceId`, and keep `ResponseEntity`/`String` responses untouched.
 
+== Sample Response
+
+A minimal controller can stay focused on domain data:
+
+[source,java]
+----
+@RestController
+class StatusController {
+
+    @GetMapping("/status")
+    StatusPayload status() {
+        return new StatusPayload("UP");
+    }
+
+    record StatusPayload(String state) { }
+}
+----
+
+When response wrapping is enabled the HTTP payload becomes:
+
+[source,json]
+----
+{
+  "code": "0",
+  "message": "OK",
+  "data": {
+    "state": "UP"
+  },
+  "traceId": "a8ad0b6ee5c84fab"
+}
+----
+
+If the controller throws an exception handled by `GlobalExceptionHandler`, the structure remains identical:
+
+[source,json]
+----
+{
+  "code": "BUSINESS_ERROR",
+  "message": "Login required",
+  "data": null,
+  "traceId": "a8ad0b6ee5c84fab"
+}
+----
+
 == Configuration Hints
 
 The starter provides rich metadata so IDEs offer auto-completion for all `web.starter.*` properties. A full reference is

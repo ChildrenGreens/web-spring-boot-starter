@@ -42,6 +42,50 @@ toc::[]
 `ResponseWrappingAdvice` 会自动为非 `ApiResponse` 的响应加壳、附带当前 `traceId`，并保留 `ResponseEntity` 与 `String`
 类型的返回值不变。`GlobalExceptionHandler` 与 `TraceIdFilter` 同样会自动生效，无需手动装配。
 
+== 返回示例
+
+示例控制器只负责返回业务数据：
+
+[source,java]
+----
+@RestController
+class StatusController {
+
+    @GetMapping("/status")
+    StatusPayload status() {
+        return new StatusPayload("UP");
+    }
+
+    record StatusPayload(String state) { }
+}
+----
+
+在启用响应包装后，请求的响应体将被统一：
+
+[source,json]
+----
+{
+  "code": "0",
+  "message": "OK",
+  "data": {
+    "state": "UP"
+  },
+  "traceId": "a8ad0b6ee5c84fab"
+}
+----
+
+若抛出由 `GlobalExceptionHandler` 处理的业务异常，返回结构同样一致：
+
+[source,json]
+----
+{
+  "code": "BUSINESS_ERROR",
+  "message": "需要登录",
+  "data": null,
+  "traceId": "a8ad0b6ee5c84fab"
+}
+----
+
 == 配置提示
 
 Starter 提供完整的元数据，IDE 可自动补全 `web.starter.*` 属性。完整说明见 link:docs/web-starter-properties.adoc[配置属性文档]。常用示例如下：
