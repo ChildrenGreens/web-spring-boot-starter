@@ -1,0 +1,144 @@
+= web-spring-boot-starter 使用指南
+ChildrenGreens <childrengreens@163.com>
+:toc: macro
+:toclevels: 2
+:icons: font
+
+`web-spring-boot-starter` 项目面向 Spring Boot 3.5.x，提供了一套约定优于配置的 Web 层基础设施。它将可复用的上下文组件、自动配置以及 Starter 打包在一起，团队只需引入一个依赖即可获得统一的接口能力。
+
+toc::[]
+
+== 模块划分
+
+- *web-spring-boot-context* —— 提供 `ApiResponse` 响应模型（默认附带 `traceId`）、全局异常处理、链路追踪与请求日志等基础能力。
+- *web-spring-boot-autoconfigure* —— 基于条件注入的自动配置模块，负责将上述组件装配到 Servlet Web 应用中。
+- *web-spring-boot-starter* —— 面向使用方的 Starter POM，聚合所需依赖并暴露自动配置。
+
+== 核心特性
+
+- 统一的 `ApiResponse<T>` JSON 包装，字段包含 `code`、`message`、`data` 与当前请求的 `traceId`。
+- `GlobalExceptionHandler` 提供校验异常、业务异常及未知异常的结构化响应。
+- 通过 `ResponseBodyAdvice` 控制是否启用响应包装，可使用 `web.starter.response.enabled` 动态开关。
+- `TraceIdFilter` 负责读取或生成 `X-Trace-Id`，并在响应体及 MDC 中输出链路 ID。
+- `RequestLoggingFilter` 支持头信息打印与负载截断，便于排查问题。
+- 内置国际化支持：基于 `Accept-Language` 的消息解析与可在代码中使用的 `MessageResolver`。
+- 针对 Jackson 的合理默认值（ISO-8601 日期、可选 Long 转字符串）以及可配置的 CORS 策略。
+- `@LoginRequired` 注解配合可插拔的 `LoginRequirementEvaluator`，用于实现自定义认证逻辑。
+
+== 快速开始
+
+在 Spring Boot 项目中引入 Starter：
+
+[source,xml]
+----
+<dependency>
+  <groupId>com.childrengreens</groupId>
+  <artifactId>web-spring-boot-starter</artifactId>
+  <version>1.0-SNAPSHOT</version>
+</dependency>
+----
+
+示例控制器将 `ApiResponseFactory` 注入后即可直接返回统一响应：
+
+[source,java]
+----
+@RestController
+@RequestMapping("/greetings")
+class GreetingController {
+
+    private final ApiResponseFactory responseFactory;
+
+    GreetingController(ApiResponseFactory responseFactory) {
+        this.responseFactory = responseFactory;
+    }
+
+    @GetMapping
+    ApiResponse<String> currentUserGreeting() {
+        return this.responseFactory.success("Hello from the starter!");
+    }
+}
+----
+
+`GlobalExceptionHandler`、`TraceIdFilter` 以及可选的响应包装会自动接管所有请求，无需额外配置。
+
+== 配置提示
+
+Starter 提供完整的元数据，IDE 可自动补全 `web.starter.*` 属性。完整说明见 link:docs/web-starter-properties.adoc[配置属性文档]。常用示例如下：
+
+[source,properties]
+----
+web.starter.trace.enabled=true
+web.starter.trace.header-name=X-Trace-Id
+web.starter.response.enabled=true
+web.starter.response.wrap-on-null-body=false
+web.starter.logging.include-headers=true
+web.starter.logging.max-payload-size=16KB
+web.starter.jackson.write-long-as-string=true
+web.starter.cors.allowed-origins=https://example.com
+----
+
+== 认证集成
+
+使用 `@LoginRequired` 标注受保护的接口，并提供 `LoginRequirementEvaluator` 实现自定义校验：
+
+[source,java]
+----
+@LoginRequired(scope = "admin")
+@GetMapping("/admin/metrics")
+String adminOnlyEndpoint() {
+    return "top-secret";
+}
+
+@Bean
+LoginRequirementEvaluator loginRequirementEvaluator(UserSessionService sessions) {
+    return (request, handler, scope) -> {
+        if (!sessions.isAuthenticated(scope)) {
+            throw new UnauthorizedException("Not logged in");
+        }
+    };
+}
+----
+
+当 `web.starter.auth.enabled=true` 且存在 `LoginRequirementEvaluator` Bean 时，框架会自动注册拦截器。
+
+== 国际化支持
+
+启用 i18n 功能并指定消息资源：
+
+[source,properties]
+----
+web.starter.i18n.enabled=true
+web.starter.i18n.base-names=classpath:i18n/messages
+web.starter.i18n.default-locale=zh_CN
+----
+
+通过注入 `MessageResolver`，即可在服务或控制层根据当前请求 Locale 获取本地化文案。
+
+== 环境要求
+
+- JDK 21 及以上
+- Maven 3.9 及以上
+- Spring Boot 3.5.x
+
+== 构建与测试
+
+[source,shell]
+----
+# 校验版权头、编译模块并执行全部测试
+mvn clean install
+
+# 仅运行自动配置模块的测试
+mvn -pl web-spring-boot-autoconfigure test
+
+# 开发迭代时的快速构建
+mvn -T 1C clean install -DskipTests=true
+----
+
+== 项目链接
+
+- 仓库主页：https://github.com/ChildrenGreens/web-spring-boot-starter
+- Issue 地址：https://github.com/ChildrenGreens/web-spring-boot-starter/issues
+
+== 许可证
+
+本项目遵循 Apache License 2.0，详情见根目录 `LICENSE.txt`。

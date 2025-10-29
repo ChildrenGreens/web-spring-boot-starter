@@ -41,6 +41,30 @@ Add the starter to your Spring Boot application:
 </dependency>
 ----
 
+Then import the auto-configured beans in a typical Spring Boot REST application:
+
+[source,java]
+----
+@RestController
+@RequestMapping("/greetings")
+class GreetingController {
+
+    private final ApiResponseFactory responseFactory;
+
+    GreetingController(ApiResponseFactory responseFactory) {
+        this.responseFactory = responseFactory;
+    }
+
+    @GetMapping
+    ApiResponse<String> currentUserGreeting() {
+        return this.responseFactory.success("Hello from the starter!");
+    }
+}
+----
+
+All responses will flow through the shared `GlobalExceptionHandler`, `TraceIdFilter`, and optional response wrapper without
+any additional wiring.
+
 == Configuration Hints
 
 The starter provides rich metadata so IDEs offer auto-completion for all `web.starter.*` properties. A full reference is
@@ -58,6 +82,44 @@ web.starter.jackson.write-long-as-string=true
 web.starter.cors.allowed-origins=https://example.com
 ----
 
+== Authentication Integration
+
+Annotate handlers with `@LoginRequired` and supply a `LoginRequirementEvaluator` bean that performs project-specific checks.
+
+[source,java]
+----
+@LoginRequired(scope = "admin")
+@GetMapping("/admin/metrics")
+String adminOnlyEndpoint() {
+    return "top-secret";
+}
+
+@Bean
+LoginRequirementEvaluator loginRequirementEvaluator(UserSessionService sessions) {
+    return (request, handler, scope) -> {
+        if (!sessions.isAuthenticated(scope)) {
+            throw new UnauthorizedException("Not logged in");
+        }
+    };
+}
+----
+
+The interceptor is only registered when `web.starter.auth.enabled=true` and an evaluator bean is present.
+
+== Internationalisation
+
+Enable i18n support by configuring message bundles:
+
+[source,properties]
+----
+web.starter.i18n.enabled=true
+web.starter.i18n.base-names=classpath:i18n/messages
+web.starter.i18n.default-locale=zh_CN
+----
+
+The starter exposes a `MessageResolver` abstraction that honours the current request `Locale`, enabling re-usable message lookup
+from services or controllers.
+
 == Requirements
 
 - JDK 21+
@@ -73,6 +135,9 @@ mvn clean install
 
 # Focus on auto-configuration tests only
 mvn -pl web-spring-boot-autoconfigure test
+
+# Faster local iteration while developing
+mvn -T 1C clean install -DskipTests=true
 ----
 
 == Project Links
