@@ -141,7 +141,7 @@ web.starter.i18n.default-locale=zh_CN
 
 == 环境要求
 
-- JDK 21 及以上
+- JDK 17 及以上
 - Maven 3.9 及以上
 - Spring Boot 3.5.x
 

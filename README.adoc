@@ -146,7 +146,7 @@ from services or controllers.
 
 == Requirements
 
-- JDK 21+
+- JDK 17+
 - Maven 3.9+
 - Spring Boot 3.5.x
 

@@ -14,7 +14,7 @@
 - 发布前执行 `mvn -Prelease deploy`，保证 `main` 分支干净且 GPG 签名配置正确。
 
 ## 编码风格与命名约定
-- 统一使用 Java 21 与四空格缩进，控制每行不超过 120 字符。
+- 统一使用 Java 17 与四空格缩进，控制每行不超过 120 字符。
 - 按 Spring Boot 惯例命名：配置类以 `Configuration` 收尾，自动装配以 `AutoConfiguration` 结束，条件工具以 `Condition` 结尾。
 - 默认值放在 `src/main/resources/application.properties`，并通过 `@ConfigurationProperties` 暴露，类名以 `Properties` 结尾。
 - 所有源码保持 Apache 2.0 版权头，禁止绕过 `license-maven-plugin`。
