@@ -38,28 +38,9 @@ toc::[]
 </dependency>
 ----
 
-示例控制器将 `ApiResponseFactory` 注入后即可直接返回统一响应：
-
-[source,java]
-----
-@RestController
-@RequestMapping("/greetings")
-class GreetingController {
-
-    private final ApiResponseFactory responseFactory;
-
-    GreetingController(ApiResponseFactory responseFactory) {
-        this.responseFactory = responseFactory;
-    }
-
-    @GetMapping
-    ApiResponse<String> currentUserGreeting() {
-        return this.responseFactory.success("Hello from the starter!");
-    }
-}
-----
-
-`GlobalExceptionHandler`、`TraceIdFilter` 以及可选的响应包装会自动接管所有请求，无需额外配置。
+引入 Starter 后，现有控制器可以继续返回业务对象或 DTO。只要 `web.starter.response.enabled=true`，上下文模块提供的
+`ResponseWrappingAdvice` 会自动为非 `ApiResponse` 的响应加壳、附带当前 `traceId`，并保留 `ResponseEntity` 与 `String`
+类型的返回值不变。`GlobalExceptionHandler` 与 `TraceIdFilter` 同样会自动生效，无需手动装配。
 
 == 配置提示
 

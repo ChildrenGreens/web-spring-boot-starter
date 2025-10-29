@@ -41,29 +41,9 @@ Add the starter to your Spring Boot application:
 </dependency>
 ----
 
-Then import the auto-configured beans in a typical Spring Boot REST application:
-
-[source,java]
-----
-@RestController
-@RequestMapping("/greetings")
-class GreetingController {
-
-    private final ApiResponseFactory responseFactory;
-
-    GreetingController(ApiResponseFactory responseFactory) {
-        this.responseFactory = responseFactory;
-    }
-
-    @GetMapping
-    ApiResponse<String> currentUserGreeting() {
-        return this.responseFactory.success("Hello from the starter!");
-    }
-}
-----
-
-All responses will flow through the shared `GlobalExceptionHandler`, `TraceIdFilter`, and optional response wrapper without
-any additional wiring.
+With the starter on the classpath your existing controllers can continue returning domain objects or DTOs. The
+`ResponseWrappingAdvice` supplied by the context module will automatically wrap non `ApiResponse` payloads when
+`web.starter.response.enabled=true`, attach the current `traceId`, and keep `ResponseEntity`/`String` responses untouched.
 
 == Configuration Hints
 
