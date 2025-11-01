@@ -130,8 +130,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGenericException(Exception exception, WebRequest request) {
         log.error("Unhandled exception processing request {}", request.getDescription(false), exception);
-        var response = this.responseFactory.failure(
-                exception.getMessage() != null ? exception.getMessage() : DefaultErrorCode.INTERNAL_ERROR.getMessage());
+        var response = this.responseFactory.failure(DefaultErrorCode.INTERNAL_ERROR);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 }
