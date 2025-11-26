@@ -34,7 +34,7 @@ toc::[]
 <dependency>
   <groupId>com.childrengreens</groupId>
   <artifactId>web-spring-boot-starter</artifactId>
-  <version>0.0.1</version>
+  <version>0.0.2</version>
 </dependency>
 ----
 
