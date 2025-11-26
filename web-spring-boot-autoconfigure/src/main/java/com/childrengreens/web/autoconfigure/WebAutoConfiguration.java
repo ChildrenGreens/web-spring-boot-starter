@@ -34,10 +34,12 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ImportRuntimeHints;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.Ordered;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -53,6 +55,7 @@ import java.util.TimeZone;
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 @ConditionalOnClass({ Jackson2ObjectMapperBuilder.class, WebMvcConfigurer.class })
 @EnableConfigurationProperties(WebStarterProperties.class)
+@ImportRuntimeHints(WebRuntimeHints.class)
 public class WebAutoConfiguration {
 
     @Bean
@@ -81,7 +84,7 @@ public class WebAutoConfiguration {
     public WebMvcConfigurer webStarterCorsConfigurer(WebStarterProperties properties) {
         return new WebMvcConfigurer() {
             @Override
-            public void addCorsMappings(CorsRegistry registry) {
+            public void addCorsMappings(@NonNull CorsRegistry registry) {
                 WebStarterProperties.Cors cors = properties.getCors();
                 if (!cors.isEnabled()) {
                     return;
@@ -162,7 +165,7 @@ public class WebAutoConfiguration {
             LoginRequiredInterceptor interceptor) {
         return new WebMvcConfigurer() {
             @Override
-            public void addInterceptors(InterceptorRegistry registry) {
+            public void addInterceptors(@NonNull InterceptorRegistry registry) {
                 WebStarterProperties.Auth auth = properties.getAuth();
                 var registration = registry.addInterceptor(interceptor);
                 if (!auth.getIncludePatterns().isEmpty()) {
