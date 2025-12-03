@@ -36,7 +36,7 @@ class WebRuntimeHintsTests {
         this.runtimeHints.registerHints(hints, getClass().getClassLoader());
 
         assertThat(RuntimeHintsPredicates.reflection().onType(ApiResponse.class)
-                .withMemberCategories(MemberCategory.DECLARED_FIELDS, MemberCategory.INVOKE_PUBLIC_METHODS))
+                .withMemberCategories(MemberCategory.ACCESS_DECLARED_FIELDS, MemberCategory.INVOKE_PUBLIC_METHODS))
                 .accepts(hints);
     }
 
@@ -46,7 +46,7 @@ class WebRuntimeHintsTests {
         this.runtimeHints.registerHints(hints, getClass().getClassLoader());
 
         assertThat(RuntimeHintsPredicates.reflection().onType(DefaultErrorCode.class)
-                .withMemberCategories(MemberCategory.DECLARED_FIELDS, MemberCategory.INVOKE_PUBLIC_METHODS))
+                .withMemberCategories(MemberCategory.ACCESS_DECLARED_FIELDS, MemberCategory.INVOKE_PUBLIC_METHODS))
                 .accepts(hints);
         assertThat(RuntimeHintsPredicates.reflection().onType(BusinessException.class)
                 .withMemberCategories(MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS, MemberCategory.INVOKE_PUBLIC_METHODS))

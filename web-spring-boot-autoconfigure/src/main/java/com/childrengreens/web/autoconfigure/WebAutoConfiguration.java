@@ -29,8 +29,8 @@ import com.childrengreens.web.context.trace.UuidsTraceIdGenerator;
 import jakarta.servlet.DispatcherType;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.*;
-import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
@@ -38,22 +38,26 @@ import org.springframework.context.annotation.ImportRuntimeHints;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.Ordered;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.ser.std.ToStringSerializer;
 
+import java.text.SimpleDateFormat;
 import java.util.TimeZone;
+
 
 /**
  * Auto-configuration that exposes the web starter opinionated defaults.
  */
 @AutoConfiguration
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-@ConditionalOnClass({ Jackson2ObjectMapperBuilder.class, WebMvcConfigurer.class })
+@ConditionalOnClass({ JsonMapper.class, WebMvcConfigurer.class })
 @EnableConfigurationProperties(WebStarterProperties.class)
 @ImportRuntimeHints(WebRuntimeHints.class)
 public class WebAutoConfiguration {
@@ -191,22 +195,23 @@ public class WebAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnClass(Jackson2ObjectMapperBuilder.class)
-    public Jackson2ObjectMapperBuilderCustomizer jacksonCustomizer(WebStarterProperties properties) {
+    @ConditionalOnClass(JsonMapper.class)
+    public JsonMapperBuilderCustomizer jacksonCustomizer(WebStarterProperties properties) {
         return builder -> configureJackson(builder, properties);
     }
 
-    private void configureJackson(Jackson2ObjectMapperBuilder builder, WebStarterProperties properties) {
+    private void configureJackson(JsonMapper.Builder builder, WebStarterProperties properties) {
         WebStarterProperties.Jackson jackson = properties.getJackson();
-        builder.timeZone(TimeZone.getTimeZone(jackson.getZoneId()));
-        builder.simpleDateFormat(jackson.getDateFormat());
-        builder.modulesToInstall(com.fasterxml.jackson.datatype.jsr310.JavaTimeModule.class);
-        if (!jackson.isWriteDatesAsTimestamps()) {
-            builder.featuresToDisable(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        }
+        TimeZone timeZone = TimeZone.getTimeZone(jackson.getZoneId());
+        builder.defaultTimeZone(timeZone);
+        SimpleDateFormat dateFormat = new SimpleDateFormat(jackson.getDateFormat());
+        dateFormat.setTimeZone(timeZone);
+        builder.defaultDateFormat(dateFormat);
         if (jackson.isWriteLongAsString()) {
-            builder.serializerByType(Long.class, com.fasterxml.jackson.databind.ser.std.ToStringSerializer.instance);
-            builder.serializerByType(Long.TYPE, com.fasterxml.jackson.databind.ser.std.ToStringSerializer.instance);
+            SimpleModule module = new SimpleModule();
+            module.addSerializer(Long.class, ToStringSerializer.instance);
+            module.addSerializer(Long.TYPE, ToStringSerializer.instance);
+            builder.addModule(module);
         }
     }
 }

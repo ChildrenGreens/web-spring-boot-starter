@@ -15,6 +15,9 @@
  */
 package com.childrengreens.web.autoconfigure;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Locale;
 
 import com.childrengreens.web.context.advice.ResponseWrappingAdvice;
@@ -26,13 +29,12 @@ import com.childrengreens.web.context.auth.LoginRequirementEvaluator;
 import com.childrengreens.web.context.auth.LoginRequiredInterceptor;
 import com.childrengreens.web.context.i18n.MessageResolver;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
+import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import tools.jackson.databind.json.JsonMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -63,12 +65,16 @@ class WebAutoConfigurationTests {
     @Test
     void shouldApplyJacksonCustomisations() {
         this.contextRunner.run((context) -> {
-            Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder();
-            context.getBeanProvider(org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer.class)
+            JsonMapper.Builder builder = JsonMapper.builder();
+            context.getBeanProvider(JsonMapperBuilderCustomizer.class)
                     .orderedStream().forEach((customizer) -> customizer.customize(builder));
-            ObjectMapper mapper = builder.build();
-            assertThat(mapper.getRegisteredModuleIds()).isNotEmpty();
-            assertThat(mapper.getSerializationConfig().isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)).isFalse();
+            JsonMapper mapper = builder.build();
+            DateFormat dateFormat = mapper.serializationConfig().getDateFormat();
+            assertThat(dateFormat).isInstanceOf(SimpleDateFormat.class);
+            assertThat(((SimpleDateFormat) dateFormat).toPattern()).isEqualTo("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+            assertThat(dateFormat.getTimeZone().getID()).isEqualTo("UTC");
+            String serialized = mapper.writeValueAsString(LocalDateTime.of(2025, 1, 2, 3, 4, 5));
+            assertThat(serialized).isEqualTo("\"2025-01-02T03:04:05\"");
         });
     }
 

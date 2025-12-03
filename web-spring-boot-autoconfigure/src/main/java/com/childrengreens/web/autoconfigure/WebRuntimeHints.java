@@ -30,10 +30,10 @@ class WebRuntimeHints implements RuntimeHintsRegistrar {
 
     @Override
     public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
-        hints.reflection().registerType(ApiResponse.class, (hint) -> hint.withMembers(MemberCategory.DECLARED_FIELDS,
+        hints.reflection().registerType(ApiResponse.class, (hint) -> hint.withMembers(MemberCategory.ACCESS_DECLARED_FIELDS,
                 MemberCategory.INVOKE_PUBLIC_METHODS));
         hints.reflection().registerType(DefaultErrorCode.class,
-                (hint) -> hint.withMembers(MemberCategory.DECLARED_FIELDS, MemberCategory.INVOKE_PUBLIC_METHODS));
+                (hint) -> hint.withMembers(MemberCategory.ACCESS_DECLARED_FIELDS, MemberCategory.INVOKE_PUBLIC_METHODS));
         hints.reflection().registerType(BusinessException.class,
                 (hint) -> hint.withMembers(MemberCategory.INVOKE_PUBLIC_CONSTRUCTORS,
                         MemberCategory.INVOKE_PUBLIC_METHODS));

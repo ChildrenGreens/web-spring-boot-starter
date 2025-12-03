@@ -51,7 +51,7 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        ContentCachingRequestWrapper wrappedRequest = new ContentCachingRequestWrapper(request);
+        ContentCachingRequestWrapper wrappedRequest = new ContentCachingRequestWrapper(request, 0);
         ContentCachingResponseWrapper wrappedResponse = new ContentCachingResponseWrapper(response);
         Instant start = Instant.now();
         try {
