@@ -44,6 +44,7 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
+import tools.jackson.databind.cfg.DateTimeFeature;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.ser.std.ToStringSerializer;
@@ -208,6 +209,9 @@ public class WebAutoConfiguration {
         SimpleDateFormat dateFormat = new SimpleDateFormat(jackson.getDateFormat());
         dateFormat.setTimeZone(timeZone);
         builder.defaultDateFormat(dateFormat);
+        if (jackson.isWriteDatesAsTimestamps()) {
+            builder.enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS);
+        }
         if (jackson.isWriteLongAsString()) {
             SimpleModule module = new SimpleModule();
             module.addSerializer(Long.class, ToStringSerializer.instance);
