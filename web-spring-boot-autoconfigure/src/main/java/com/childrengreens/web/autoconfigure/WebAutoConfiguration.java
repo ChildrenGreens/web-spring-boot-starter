@@ -27,6 +27,7 @@ import com.childrengreens.web.context.trace.TraceIdFilter;
 import com.childrengreens.web.context.trace.TraceIdGenerator;
 import com.childrengreens.web.context.trace.UuidsTraceIdGenerator;
 import jakarta.servlet.DispatcherType;
+import org.jspecify.annotations.NonNull;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.*;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -38,7 +39,6 @@ import org.springframework.context.annotation.ImportRuntimeHints;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.Ordered;
-import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -115,9 +115,9 @@ public class WebAutoConfiguration {
 
     @Bean
     @ConditionalOnProperty(prefix = "web.starter.trace", name = "enabled", havingValue = "true", matchIfMissing = true)
-    public FilterRegistrationBean<TraceIdFilter> traceIdFilter(TraceIdGenerator traceIdGenerator,
+    public FilterRegistrationBean<@NonNull TraceIdFilter> traceIdFilter(TraceIdGenerator traceIdGenerator,
             WebStarterProperties properties) {
-        FilterRegistrationBean<TraceIdFilter> registration = new FilterRegistrationBean<>();
+        FilterRegistrationBean<@NonNull TraceIdFilter> registration = new FilterRegistrationBean<>();
         registration.setFilter(new TraceIdFilter(traceIdGenerator, properties.getTrace().getHeaderName()));
         registration.setDispatcherTypes(DispatcherType.REQUEST, DispatcherType.ASYNC);
         registration.setOrder(Ordered.HIGHEST_PRECEDENCE + 10);
@@ -184,10 +184,10 @@ public class WebAutoConfiguration {
 
     @Bean
     @ConditionalOnProperty(prefix = "web.starter.logging", name = "enabled", havingValue = "true", matchIfMissing = true)
-    public FilterRegistrationBean<RequestLoggingFilter> requestLoggingFilter(WebStarterProperties properties) {
+    public FilterRegistrationBean<@NonNull RequestLoggingFilter> requestLoggingFilter(WebStarterProperties properties) {
         int maxPayload = (int) Math.min(Integer.MAX_VALUE, properties.getLogging().getMaxPayloadSize().toBytes());
         RequestLoggingFilter filter = new RequestLoggingFilter(properties.getLogging().isIncludeHeaders(), maxPayload);
-        FilterRegistrationBean<RequestLoggingFilter> registration = new FilterRegistrationBean<>();
+        FilterRegistrationBean<@NonNull RequestLoggingFilter> registration = new FilterRegistrationBean<>();
         registration.setFilter(filter);
         registration.setOrder(Ordered.LOWEST_PRECEDENCE - 10);
         registration.setDispatcherTypes(DispatcherType.REQUEST, DispatcherType.ASYNC);
