@@ -116,6 +116,11 @@ public class WebStarterProperties {
         private List<String> allowedOrigins = new ArrayList<>(Collections.singletonList("*"));
 
         /**
+         * Allowed origin patterns for cross-origin requests.
+         */
+        private List<String> allowedOriginPatterns = new ArrayList<>();
+
+        /**
          * Allowed headers that clients can use during the actual request.
          */
         private List<String> allowedHeaders = new ArrayList<>(Collections.singletonList("*"));
@@ -162,6 +167,14 @@ public class WebStarterProperties {
 
         public void setAllowedOrigins(List<String> allowedOrigins) {
             this.allowedOrigins = allowedOrigins;
+        }
+
+        public List<String> getAllowedOriginPatterns() {
+            return this.allowedOriginPatterns;
+        }
+
+        public void setAllowedOriginPatterns(List<String> allowedOriginPatterns) {
+            this.allowedOriginPatterns = allowedOriginPatterns;
         }
 
         public List<String> getAllowedHeaders() {

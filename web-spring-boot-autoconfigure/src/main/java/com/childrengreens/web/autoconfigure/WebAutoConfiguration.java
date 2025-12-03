@@ -95,6 +95,7 @@ public class WebAutoConfiguration {
                 }
                 var mapping = registry.addMapping(cors.getPathPattern())
                         .allowedOrigins(cors.getAllowedOrigins().toArray(new String[0]))
+                        .allowedOriginPatterns(cors.getAllowedOriginPatterns().toArray(new String[0]))
                         .allowedMethods(cors.getAllowedMethods().toArray(new String[0]))
                         .allowedHeaders(cors.getAllowedHeaders().toArray(new String[0]))
                         .maxAge(cors.getMaxAge());
