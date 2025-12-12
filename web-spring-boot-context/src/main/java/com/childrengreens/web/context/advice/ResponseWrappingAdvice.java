@@ -17,13 +17,14 @@ package com.childrengreens.web.context.advice;
 
 import com.childrengreens.web.context.response.ApiResponse;
 import com.childrengreens.web.context.response.ApiResponseFactory;
+import org.jspecify.annotations.NonNull;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.AbstractJacksonHttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
-import org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
@@ -47,13 +48,13 @@ public class ResponseWrappingAdvice implements ResponseBodyAdvice<Object> {
     }
 
     @Override
-    public boolean supports(MethodParameter returnType, Class converterType) {
-        return converterType != null && AbstractJackson2HttpMessageConverter.class.isAssignableFrom(converterType);
+    public boolean supports(@NonNull MethodParameter returnType, @NonNull Class converterType) {
+        return AbstractJacksonHttpMessageConverter.class.isAssignableFrom(converterType);
     }
 
     @Override
-    public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType,
-            Class selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
+    public Object beforeBodyWrite(Object body, @NonNull MethodParameter returnType, @NonNull MediaType selectedContentType,
+                                  @NonNull Class selectedConverterType, @NonNull ServerHttpRequest request, @NonNull ServerHttpResponse response) {
         if (body instanceof ApiResponse<?> || body instanceof ResponseEntity<?> || body instanceof String) {
             return body;
         }
