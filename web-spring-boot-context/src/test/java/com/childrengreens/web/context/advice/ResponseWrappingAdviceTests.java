@@ -107,6 +107,13 @@ class ResponseWrappingAdviceTests {
 
     private static final class SampleController {
 
+        SampleBody jsonBody() {
+            return new SampleBody();
+        }
+
+        byte[] binaryBody() {
+            return new byte[0];
+        }
     }
 
     private static final class SampleBody {
