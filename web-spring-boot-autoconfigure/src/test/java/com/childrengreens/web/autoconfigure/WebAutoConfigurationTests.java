@@ -32,6 +32,8 @@ import com.childrengreens.web.context.logging.RequestLoggingFilter;
 import com.childrengreens.web.context.auth.LoginRequirementEvaluator;
 import com.childrengreens.web.context.auth.LoginRequiredInterceptor;
 import com.childrengreens.web.context.i18n.MessageResolver;
+import org.jspecify.annotations.NonNull;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -43,6 +45,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.cfg.DateTimeFeature;
 
@@ -170,5 +173,58 @@ class WebAutoConfigurationTests {
             String serialized = mapper.writeValueAsString(Collections.singletonMap("value", 123L));
             assertThat(serialized).isEqualTo("{\"value\":\"123\"}");
         });
+    }
+
+    @Test
+    void shouldConfigureCorsMappingsWhenEnabled() {
+        this.contextRunner.withPropertyValues("web.starter.cors.enabled=true",
+                "web.starter.cors.allowed-origins=https://a.com",
+                "web.starter.cors.allowed-methods=GET,POST").run((context) -> {
+            WebMvcConfigurer configurer = context.getBean(WebMvcConfigurer.class);
+            RecordingCorsRegistry registry = new RecordingCorsRegistry();
+            configurer.addCorsMappings(registry);
+            assertThat(registry.lastRegistration).isNotNull();
+            assertThat(registry.lastRegistration.path).isEqualTo("/**");
+            assertThat(registry.lastRegistration.allowedOrigins).containsExactly("https://a.com");
+            assertThat(registry.lastRegistration.allowedMethods).containsExactly("GET", "POST");
+        });
+    }
+
+    private static final class RecordingCorsRegistry extends CorsRegistry {
+
+        RecordingCorsRegistration lastRegistration;
+
+        @Override
+        public org.springframework.web.servlet.config.annotation.CorsRegistration addMapping(@NonNull String pathPattern) {
+            RecordingCorsRegistration registration = new RecordingCorsRegistration(pathPattern);
+            this.lastRegistration = registration;
+            return registration;
+        }
+    }
+
+    private static final class RecordingCorsRegistration extends org.springframework.web.servlet.config.annotation.CorsRegistration {
+
+        String path;
+
+        java.util.List<String> allowedOrigins = java.util.Collections.emptyList();
+
+        java.util.List<String> allowedMethods = java.util.Collections.emptyList();
+
+        RecordingCorsRegistration(String pathPattern) {
+            super(pathPattern);
+            this.path = pathPattern;
+        }
+
+        @Override
+        public org.springframework.web.servlet.config.annotation.CorsRegistration allowedOrigins(String @NonNull ... origins) {
+            this.allowedOrigins = java.util.Arrays.asList(origins);
+            return super.allowedOrigins(origins);
+        }
+
+        @Override
+        public org.springframework.web.servlet.config.annotation.CorsRegistration allowedMethods(String @NonNull ... methods) {
+            this.allowedMethods = java.util.Arrays.asList(methods);
+            return super.allowedMethods(methods);
+        }
     }
 }

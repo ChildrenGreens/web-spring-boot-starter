@@ -21,8 +21,15 @@ import com.childrengreens.web.context.response.ApiResponse;
 import com.childrengreens.web.context.response.ApiResponseFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.MethodParameter;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
+import org.springframework.http.server.ServletServerHttpRequest;
+import org.springframework.http.server.ServletServerHttpResponse;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -61,6 +68,38 @@ class ResponseWrappingAdviceTests {
         assertThat(result).isInstanceOf(ApiResponse.class);
     }
 
+    @Test
+    void beforeBodyWriteSkipsApiResponseAndResponseEntity() throws NoSuchMethodException {
+        MethodParameter parameter = methodParameter("jsonBody");
+        ApiResponse<SampleBody> response = new ApiResponseFactory().success(new SampleBody());
+
+        Object apiResponseResult = this.advice.beforeBodyWrite(response, parameter, MediaType.APPLICATION_JSON,
+                JacksonJsonHttpMessageConverter.class, new ServletServerHttpRequest(new MockHttpServletRequest()),
+                new ServletServerHttpResponse(new MockHttpServletResponse()));
+        Object responseEntityResult = this.advice.beforeBodyWrite(ResponseEntity.ok(new SampleBody()), parameter,
+                MediaType.APPLICATION_JSON, JacksonJsonHttpMessageConverter.class,
+                new ServletServerHttpRequest(new MockHttpServletRequest()),
+                new ServletServerHttpResponse(new MockHttpServletResponse()));
+
+        assertThat(apiResponseResult).isSameAs(response);
+        assertThat(responseEntityResult).isInstanceOf(ResponseEntity.class);
+    }
+
+    @Test
+    void beforeBodyWriteHonorsNullBodyWhenDisabled() throws Exception {
+        ResponseWrappingAdvice noWrapAdvice = new ResponseWrappingAdvice(new ApiResponseFactory(), false);
+        MethodParameter parameter = methodParameter("jsonBody");
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        Object result = noWrapAdvice.beforeBodyWrite(null, parameter, MediaType.APPLICATION_JSON,
+                JacksonJsonHttpMessageConverter.class, new ServletServerHttpRequest(request),
+                new ServletServerHttpResponse(response));
+
+        assertThat(result).isNull();
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.NO_CONTENT.value());
+    }
+
     private MethodParameter methodParameter(String methodName) throws NoSuchMethodException {
         Method method = SampleController.class.getDeclaredMethod(methodName);
         return new MethodParameter(method, -1);
@@ -68,13 +107,6 @@ class ResponseWrappingAdviceTests {
 
     private static final class SampleController {
 
-        SampleBody jsonBody() {
-            return new SampleBody();
-        }
-
-        byte[] binaryBody() {
-            return new byte[0];
-        }
     }
 
     private static final class SampleBody {
