@@ -33,6 +33,7 @@ class GlobalExceptionHandlerTests {
     private final GlobalExceptionHandler handler = new GlobalExceptionHandler(this.responseFactory);
 
     @Test
+    // Generic exceptions should be sanitized to avoid leaking sensitive details
     void handleGenericExceptionReturnsSanitisedMessage() {
         Exception sensitive = new IllegalStateException("database details should not leak");
         WebRequest request = new ServletWebRequest(new MockHttpServletRequest());

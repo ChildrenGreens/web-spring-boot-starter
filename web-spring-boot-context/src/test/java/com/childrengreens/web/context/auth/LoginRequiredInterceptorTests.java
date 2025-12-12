@@ -41,6 +41,7 @@ class LoginRequiredInterceptorTests {
     }
 
     @Test
+    // Method-level annotation should trigger evaluator
     void preHandleInvokesEvaluatorWhenMethodAnnotated() throws Exception {
         RecordingEvaluator evaluator = new RecordingEvaluator();
         LoginRequiredInterceptor interceptor = new LoginRequiredInterceptor(evaluator);
@@ -54,6 +55,7 @@ class LoginRequiredInterceptorTests {
     }
 
     @Test
+    // Type-level annotation should also trigger evaluator
     void preHandleInvokesEvaluatorForTypeLevelAnnotation() throws Exception {
         RecordingEvaluator evaluator = new RecordingEvaluator();
         LoginRequiredInterceptor interceptor = new LoginRequiredInterceptor(evaluator);
@@ -67,6 +69,7 @@ class LoginRequiredInterceptorTests {
     }
 
     @Test
+    // Should skip when @LoginRequired is absent
     void preHandleSkipsWhenNoAnnotationPresent() throws Exception {
         RecordingEvaluator evaluator = new RecordingEvaluator();
         LoginRequiredInterceptor interceptor = new LoginRequiredInterceptor(evaluator);
@@ -79,6 +82,7 @@ class LoginRequiredInterceptorTests {
     }
 
     @Test
+    // Non-HandlerMethod should be ignored
     void preHandleIgnoresNonHandlerMethod() throws Exception {
         RecordingEvaluator evaluator = new RecordingEvaluator();
         LoginRequiredInterceptor interceptor = new LoginRequiredInterceptor(evaluator);

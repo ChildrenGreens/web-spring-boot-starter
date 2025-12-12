@@ -22,7 +22,7 @@ import com.childrengreens.web.context.response.ApiResponseFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,15 +31,17 @@ class ResponseWrappingAdviceTests {
     private final ResponseWrappingAdvice advice = new ResponseWrappingAdvice(new ApiResponseFactory());
 
     @Test
+    // Jackson-backed responses should be wrapped
     void supportsReturnsTrueForJacksonConverters() throws NoSuchMethodException {
         MethodParameter parameter = methodParameter("jsonBody");
 
-        boolean supported = this.advice.supports(parameter, MappingJackson2HttpMessageConverter.class);
+        boolean supported = this.advice.supports(parameter, JacksonJsonHttpMessageConverter.class);
 
         assertThat(supported).isTrue();
     }
 
     @Test
+    // Binary outputs should not be wrapped to avoid double handling
     void supportsReturnsFalseForBinaryConverters() throws NoSuchMethodException {
         MethodParameter parameter = methodParameter("binaryBody");
 
@@ -49,11 +51,12 @@ class ResponseWrappingAdviceTests {
     }
 
     @Test
+    // Supported return values should be wrapped into ApiResponse
     void beforeBodyWriteWrapsPlainObjectsWhenSupported() throws NoSuchMethodException {
         MethodParameter parameter = methodParameter("jsonBody");
 
         Object result = this.advice.beforeBodyWrite(new SampleBody(), parameter, null,
-                MappingJackson2HttpMessageConverter.class, null, null);
+                JacksonJsonHttpMessageConverter.class, null, null);
 
         assertThat(result).isInstanceOf(ApiResponse.class);
     }

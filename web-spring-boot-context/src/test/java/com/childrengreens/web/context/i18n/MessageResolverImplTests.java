@@ -37,12 +37,14 @@ class MessageResolverImplTests {
     }
 
     @Test
+    // Constructor should reject null message source
     void constructorRejectsNullMessageSource() {
         assertThatIllegalArgumentException().isThrownBy(() -> new MessageResolverImpl(null))
                 .withMessage("messageSource must not be null");
     }
 
     @Test
+    // Should use LocaleContextHolder locale by default
     void getMessageUsesLocaleContextHolderLocale() {
         LocaleContextHolder.setLocale(Locale.FRANCE);
         this.messageSource.addMessage("greeting", Locale.FRANCE, "Bonjour");
@@ -51,12 +53,14 @@ class MessageResolverImplTests {
     }
 
     @Test
+    // Should fall back to message code when not found
     void getMessageFallsBackToCodeWhenNotFound() {
         LocaleContextHolder.setLocale(Locale.US);
         assertThat(this.resolver.getMessage("missing.code")).isEqualTo("missing.code");
     }
 
     @Test
+    // Explicit locale should override context default
     void getMessageForLocaleResolvesRequestedLocale() {
         this.messageSource.addMessage("greeting", Locale.CHINA, "你好");
         String message = this.resolver.getMessageForLocale("greeting", Locale.CHINA);
@@ -64,6 +68,7 @@ class MessageResolverImplTests {
     }
 
     @Test
+    // Template messages should substitute placeholders
     void getMessageForLocaleUsesArguments() {
         this.messageSource.addMessage("welcome", Locale.US, "Hello {0}");
         String message = this.resolver.getMessageForLocale("welcome", Locale.US, "Alice");

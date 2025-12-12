@@ -44,6 +44,7 @@ class WebAutoConfigurationTests {
             .withConfiguration(AutoConfigurations.of(WebAutoConfiguration.class));
 
     @Test
+    // Core context components should be registered by default
     void shouldRegisterCoreBeansByDefault() {
         this.contextRunner.run((context) -> {
             assertThat(context).hasSingleBean(ApiResponseFactory.class);
@@ -56,6 +57,7 @@ class WebAutoConfigurationTests {
     }
 
     @Test
+    // Disabling response wrapping should skip ResponseWrappingAdvice registration
     void shouldDisableResponseWrappingWhenConfigured() {
         this.contextRunner.withPropertyValues("web.starter.response.enabled=false").run((context) -> {
             assertThat(context).doesNotHaveBean(ResponseWrappingAdvice.class);
@@ -63,6 +65,7 @@ class WebAutoConfigurationTests {
     }
 
     @Test
+    // Verify Jackson date format and timezone customization
     void shouldApplyJacksonCustomisations() {
         this.contextRunner.run((context) -> {
             JsonMapper.Builder builder = JsonMapper.builder();
@@ -79,6 +82,7 @@ class WebAutoConfigurationTests {
     }
 
     @Test
+    // Disabling trace switch should skip TraceIdFilter
     void shouldDisableTraceFilterWhenConfigured() {
         this.contextRunner.withPropertyValues("web.starter.trace.enabled=false").run((context) -> {
             assertThat(context.getBeansOfType(FilterRegistrationBean.class).values()).noneMatch((bean) ->
@@ -87,6 +91,7 @@ class WebAutoConfigurationTests {
     }
 
     @Test
+    // Disabling logging switch should skip RequestLoggingFilter
     void shouldDisableLoggingFilterWhenConfigured() {
         this.contextRunner.withPropertyValues("web.starter.logging.enabled=false").run((context) -> {
             assertThat(context.getBeansOfType(FilterRegistrationBean.class).values()).noneMatch((registration) ->
@@ -95,6 +100,7 @@ class WebAutoConfigurationTests {
     }
 
     @Test
+    // Should register login interceptor when LoginRequirementEvaluator is present
     void shouldRegisterLoginInterceptorWhenEvaluatorPresent() {
         this.contextRunner.withPropertyValues("web.starter.auth.enabled=true")
                 .withBean(LoginRequirementEvaluator.class, () -> (request, handler, scope) -> { })
@@ -104,6 +110,7 @@ class WebAutoConfigurationTests {
     }
 
     @Test
+    // Should resolve messages per locale via MessageResolver
     void shouldProvideMessageResolverForLocales() {
         this.contextRunner.withPropertyValues("web.starter.i18n.base-names=classpath:i18n/messages").run((context) -> {
             Locale previous = LocaleContextHolder.getLocale();

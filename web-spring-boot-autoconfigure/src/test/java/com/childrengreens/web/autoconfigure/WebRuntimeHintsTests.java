@@ -31,6 +31,7 @@ class WebRuntimeHintsTests {
     private final WebRuntimeHints runtimeHints = new WebRuntimeHints();
 
     @Test
+    // ApiResponse should register reflection hints for native access
     void shouldRegisterApiResponseReflection() {
         RuntimeHints hints = new RuntimeHints();
         this.runtimeHints.registerHints(hints, getClass().getClassLoader());
@@ -41,6 +42,7 @@ class WebRuntimeHintsTests {
     }
 
     @Test
+    // Business exceptions and error codes need reflection access for AOT
     void shouldRegisterErrorTypesReflection() {
         RuntimeHints hints = new RuntimeHints();
         this.runtimeHints.registerHints(hints, getClass().getClassLoader());
