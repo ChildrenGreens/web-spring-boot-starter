@@ -54,7 +54,7 @@ import java.util.TimeZone;
 
 
 /**
- * Auto-configuration that exposes the web starter opinionated defaults.
+ * Autoconfiguration that exposes the web starter opinionated defaults.
  */
 @AutoConfiguration
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)

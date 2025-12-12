@@ -28,7 +28,7 @@ public interface ErrorCode {
     String getCode();
 
     /**
-     * Human readable message offering additional context.
+     * Human-readable message offering additional context.
      *
      * @return default error message
      */

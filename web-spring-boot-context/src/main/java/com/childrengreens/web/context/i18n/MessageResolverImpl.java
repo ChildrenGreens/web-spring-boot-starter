@@ -19,7 +19,6 @@ import java.util.Locale;
 
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 /**
@@ -44,7 +43,7 @@ public class MessageResolverImpl implements MessageResolver {
         return getMessageInternal(code, locale, args);
     }
 
-    private String getMessageInternal(String code, @Nullable Locale locale, Object[] args) {
+    private String getMessageInternal(String code, Locale locale, Object[] args) {
         Locale messageLocale = (locale != null ? locale : LocaleContextHolder.getLocale());
         return this.messageSource.getMessage(code, args, code, messageLocale);
     }
