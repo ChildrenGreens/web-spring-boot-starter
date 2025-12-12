@@ -52,4 +52,23 @@ class WebStarterPropertiesTests {
         assertThat(properties.getI18n().getDefaultLocale()).isEqualTo(Locale.CANADA_FRENCH);
         assertThat(properties.getI18n().getCacheDuration()).isEqualTo(Duration.ofSeconds(5));
     }
+
+    @Test
+    void responsePropertiesShouldBeConfigurable() {
+        WebStarterProperties.Response response = new WebStarterProperties.Response();
+
+        response.setEnabled(false);
+        response.setWrapOnNullBody(false);
+        response.setSuccessCode("S200");
+        response.setSuccessMessage("OK");
+        response.setDefaultErrorCode("E500");
+        response.setDefaultErrorMessage("boom");
+
+        assertThat(response.isEnabled()).isFalse();
+        assertThat(response.isWrapOnNullBody()).isFalse();
+        assertThat(response.getSuccessCode()).isEqualTo("S200");
+        assertThat(response.getSuccessMessage()).isEqualTo("OK");
+        assertThat(response.getDefaultErrorCode()).isEqualTo("E500");
+        assertThat(response.getDefaultErrorMessage()).isEqualTo("boom");
+    }
 }

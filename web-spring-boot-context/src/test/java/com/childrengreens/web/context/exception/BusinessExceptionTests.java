@@ -36,6 +36,14 @@ class BusinessExceptionTests {
     }
 
     @Test
+    void shouldUseErrorCodeMessageWhenOnlyErrorCodeProvided() {
+        BusinessException exception = new BusinessException(DefaultErrorCode.SUCCESS);
+
+        assertThat(exception.getErrorCode()).isEqualTo(DefaultErrorCode.SUCCESS);
+        assertThat(exception.getMessage()).isEqualTo(DefaultErrorCode.SUCCESS.getMessage());
+    }
+
+    @Test
     void shouldKeepCause() {
         IllegalStateException cause = new IllegalStateException("root");
         BusinessException exception = new BusinessException(DefaultErrorCode.SUCCESS, "ok", cause);
