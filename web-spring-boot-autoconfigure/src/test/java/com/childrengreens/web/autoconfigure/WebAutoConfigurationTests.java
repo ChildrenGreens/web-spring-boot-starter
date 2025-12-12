@@ -18,12 +18,16 @@ package com.childrengreens.web.autoconfigure;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Locale;
 
 import com.childrengreens.web.context.advice.ResponseWrappingAdvice;
 import com.childrengreens.web.context.exception.GlobalExceptionHandler;
 import com.childrengreens.web.context.response.ApiResponseFactory;
 import com.childrengreens.web.context.trace.TraceIdFilter;
+import com.childrengreens.web.context.trace.TraceIdGenerator;
+import com.childrengreens.web.context.trace.TraceIdHolder;
+import com.childrengreens.web.context.trace.UuidsTraceIdGenerator;
 import com.childrengreens.web.context.logging.RequestLoggingFilter;
 import com.childrengreens.web.context.auth.LoginRequirementEvaluator;
 import com.childrengreens.web.context.auth.LoginRequiredInterceptor;
@@ -34,7 +38,13 @@ import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.context.MessageSource;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.cfg.DateTimeFeature;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -50,18 +60,14 @@ class WebAutoConfigurationTests {
             assertThat(context).hasSingleBean(ApiResponseFactory.class);
             assertThat(context).hasSingleBean(GlobalExceptionHandler.class);
             assertThat(context).hasSingleBean(ResponseWrappingAdvice.class);
-            assertThat(context.getBeansOfType(FilterRegistrationBean.class).values()).anySatisfy((bean) -> {
-                assertThat(bean.getFilter()).isInstanceOf(TraceIdFilter.class);
-            });
+            assertThat(context.getBeansOfType(FilterRegistrationBean.class).values()).anySatisfy((bean) -> assertThat(bean.getFilter()).isInstanceOf(TraceIdFilter.class));
         });
     }
 
     @Test
     // Disabling response wrapping should skip ResponseWrappingAdvice registration
     void shouldDisableResponseWrappingWhenConfigured() {
-        this.contextRunner.withPropertyValues("web.starter.response.enabled=false").run((context) -> {
-            assertThat(context).doesNotHaveBean(ResponseWrappingAdvice.class);
-        });
+        this.contextRunner.withPropertyValues("web.starter.response.enabled=false").run((context) -> assertThat(context).doesNotHaveBean(ResponseWrappingAdvice.class));
     }
 
     @Test
@@ -84,19 +90,15 @@ class WebAutoConfigurationTests {
     @Test
     // Disabling trace switch should skip TraceIdFilter
     void shouldDisableTraceFilterWhenConfigured() {
-        this.contextRunner.withPropertyValues("web.starter.trace.enabled=false").run((context) -> {
-            assertThat(context.getBeansOfType(FilterRegistrationBean.class).values()).noneMatch((bean) ->
-                    bean.getFilter() instanceof TraceIdFilter);
-        });
+        this.contextRunner.withPropertyValues("web.starter.trace.enabled=false").run((context) -> assertThat(context.getBeansOfType(FilterRegistrationBean.class).values()).noneMatch((bean) ->
+                bean.getFilter() instanceof TraceIdFilter));
     }
 
     @Test
     // Disabling logging switch should skip RequestLoggingFilter
     void shouldDisableLoggingFilterWhenConfigured() {
-        this.contextRunner.withPropertyValues("web.starter.logging.enabled=false").run((context) -> {
-            assertThat(context.getBeansOfType(FilterRegistrationBean.class).values()).noneMatch((registration) ->
-                    registration.getFilter() instanceof RequestLoggingFilter);
-        });
+        this.contextRunner.withPropertyValues("web.starter.logging.enabled=false").run((context) -> assertThat(context.getBeansOfType(FilterRegistrationBean.class).values()).noneMatch((registration) ->
+                registration.getFilter() instanceof RequestLoggingFilter));
     }
 
     @Test
@@ -104,9 +106,7 @@ class WebAutoConfigurationTests {
     void shouldRegisterLoginInterceptorWhenEvaluatorPresent() {
         this.contextRunner.withPropertyValues("web.starter.auth.enabled=true")
                 .withBean(LoginRequirementEvaluator.class, () -> (request, handler, scope) -> { })
-                .run((context) -> {
-                    assertThat(context).hasSingleBean(LoginRequiredInterceptor.class);
-                });
+                .run((context) -> assertThat(context).hasSingleBean(LoginRequiredInterceptor.class));
     }
 
     @Test
@@ -123,6 +123,52 @@ class WebAutoConfigurationTests {
             finally {
                 LocaleContextHolder.setLocale(previous);
             }
+        });
+    }
+
+    @Test
+    void shouldSkipI18nBeansWhenDisabled() {
+        this.contextRunner.withPropertyValues("web.starter.i18n.enabled=false").run((context) -> {
+            assertThat(context).doesNotHaveBean(LocaleResolver.class);
+            assertThat(context).doesNotHaveBean(MessageResolver.class);
+            MessageSource messageSource = context.getBean(MessageSource.class);
+            assertThat(messageSource).isNotInstanceOf(ReloadableResourceBundleMessageSource.class);
+        });
+    }
+
+    @Test
+    void shouldRegisterDefaultTraceGeneratorAndFilter() {
+        this.contextRunner.withPropertyValues("web.starter.trace.header-name=X-Custom-Trace").run((context) -> {
+            TraceIdGenerator generator = context.getBean(TraceIdGenerator.class);
+            assertThat(generator).isInstanceOf(UuidsTraceIdGenerator.class);
+            FilterRegistrationBean<?> registration = context.getBeansOfType(FilterRegistrationBean.class)
+                    .values()
+                    .stream()
+                    .filter((bean) -> bean.getFilter() instanceof TraceIdFilter)
+                    .findFirst()
+                    .orElseThrow();
+            TraceIdFilter filter = (TraceIdFilter) registration.getFilter();
+            MockHttpServletRequest request = new MockHttpServletRequest("GET", "/trace");
+            MockHttpServletResponse response = new MockHttpServletResponse();
+            if (filter != null) {
+                filter.doFilter(request, response, (req, res) -> assertThat(TraceIdHolder.get()).isNotBlank());
+            }
+            assertThat(response.getHeader("X-Custom-Trace")).isNotBlank();
+            assertThat(TraceIdHolder.get()).isNull();
+        });
+    }
+
+    @Test
+    void shouldApplyTimestampAndLongWritingOptions() {
+        this.contextRunner.withPropertyValues("web.starter.jackson.write-dates-as-timestamps=true",
+                "web.starter.jackson.write-long-as-string=true").run((context) -> {
+            JsonMapper.Builder builder = JsonMapper.builder();
+            context.getBeanProvider(JsonMapperBuilderCustomizer.class)
+                    .orderedStream().forEach((customizer) -> customizer.customize(builder));
+            JsonMapper mapper = builder.build();
+            assertThat(mapper.isEnabled(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)).isTrue();
+            String serialized = mapper.writeValueAsString(Collections.singletonMap("value", 123L));
+            assertThat(serialized).isEqualTo("{\"value\":\"123\"}");
         });
     }
 }
