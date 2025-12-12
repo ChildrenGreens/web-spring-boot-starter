@@ -23,18 +23,15 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.http.HttpInputMessage;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -86,7 +83,7 @@ class GlobalExceptionHandlerTests {
     @Test
     void handleMessageNotReadableUsesMostSpecificCauseMessage() {
         HttpMessageNotReadableException ex = new HttpMessageNotReadableException("body error",
-                new RuntimeException("root cause"), (HttpInputMessage) null);
+                new RuntimeException("root cause"), null);
 
         ResponseEntity<ApiResponse<Void>> response = this.handler.handleMessageNotReadable(ex);
 
@@ -119,7 +116,7 @@ class GlobalExceptionHandlerTests {
     }
 
     @Test
-    void handleNotFoundReturnsRequestedUrl() throws Exception {
+    void handleNotFoundReturnsRequestedUrl() {
         NoHandlerFoundException ex = new NoHandlerFoundException("GET", "/missing", new HttpHeaders());
 
         ResponseEntity<ApiResponse<Void>> response = this.handler.handleNotFound(ex);
