@@ -16,7 +16,11 @@ concurrency:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    if: github.repository == 'ChildrenGreens/web-spring-boot-starter'
+    environment: release
+    if: >
+      github.repository == 'ChildrenGreens/web-spring-boot-starter' &&
+      startsWith(github.ref, 'refs/tags/v')
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
