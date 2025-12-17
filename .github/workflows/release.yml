@@ -48,16 +48,17 @@ jobs:
           server-password: MAVEN_PASSWORD
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
           gpg-passphrase: GPG_PASSPHRASE
+        env:
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
 
       - name: Publish to Maven Central
         env:
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: >
           mvn -B -ntp
           -Drevision=${{ steps.version.outputs.version }}
-          -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }}
           -Prelease
           clean deploy
 
@@ -73,4 +74,3 @@ jobs:
             exit 0
           fi
           gh release create "${TAG}" --title "${TAG}" --generate-notes
-
