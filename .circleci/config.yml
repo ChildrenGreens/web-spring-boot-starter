@@ -22,7 +22,7 @@ jobs:
           file: "web-spring-boot-autoconfigure/target/site/jacoco/jacoco.xml"
 
 workflows:
-  build-multi-source-starter:
+  build-web-starter:
     jobs:
       - build-and-test:
           name: build-and-test-jdk17
