@@ -1,13 +1,12 @@
+image:https://dl.circleci.com/status-badge/img/circleci/Uy51fPbZSgy15X8yEZTik4/WtHt6BhaiLdPH4fq36v9da/tree/main.svg?style=shield["CircleCI", link="https://dl.circleci.com/status-badge/redirect/circleci/Uy51fPbZSgy15X8yEZTik4/WtHt6BhaiLdPH4fq36v9da/tree/main"]
+image:https://codecov.io/github/ChildrenGreens/web-spring-boot-starter/graph/badge.svg?token=9B1XADZPJ3["codecov",link="https://codecov.io/github/ChildrenGreens/web-spring-boot-starter"]
+image:https://img.shields.io/maven-central/v/com.childrengreens/web-spring-boot.svg["Maven Central",link="https://central.sonatype.com/artifact/com.childrengreens/web-spring-boot"]
+image:https://img.shields.io/hexpm/l/plug.svg["Apache 2",link="http://www.apache.org/licenses/LICENSE-2.0"]
+
 = web-spring-boot-starter
-ChildrenGreens <childrengreens@163.com>
-:toc: macro
-:toclevels: 2
-:icons: font
 
 The `web-spring-boot-starter` project delivers an opinionated web layer for Spring Boot 3.5.x applications. It groups reusable
 context components, auto-configuration, and a consumable starter so teams can enable unified API behaviour with one dependency.
-
-toc::[]
 
 == Modules
 
